@@ -3,6 +3,8 @@ import streamlit as st
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import os
+import urllib.request
 
 # --------------------------------------------------
 # Page Config
@@ -303,17 +305,26 @@ def recommend(movie):
 
 # --------------------------------------------------
 # Load Data
-# --------------------------------------------------
+SIMILARITY_FILE = "similarity.pkl"
+
+HF_URL = "https://huggingface.co/datasets/YuvrajSSolanki/movie-recommender-files/resolve/main/similarity.pkl"
+
 try:
+
+    if not os.path.exists(SIMILARITY_FILE):
+        with st.spinner("Downloading recommendation model... Please wait."):
+            urllib.request.urlretrieve(
+                HF_URL,
+                SIMILARITY_FILE
+            )
+
     movies = pickle.load(open("movie_list.pkl", "rb"))
 
-    similarity = pickle.load(open("similarity.pkl", "rb"))
+    similarity = pickle.load(open(SIMILARITY_FILE, "rb"))
 
 except Exception as e:
     st.error(f"Error Loading Files: {e}")
-
     st.stop()
-
 
 # --------------------------------------------------
 # Header & Movie Selection
